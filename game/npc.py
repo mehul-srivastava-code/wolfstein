@@ -1,5 +1,17 @@
+import os
+import sys
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS  # PyInstaller unpacked temp path
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 from sprite_object import *
 from random import randint, random
+
+
 
 
 class NPC(AnimatedSprite):

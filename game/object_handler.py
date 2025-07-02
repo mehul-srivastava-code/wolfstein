@@ -1,6 +1,16 @@
 from sprite_object import *
 from npc import *
 from random import choices, randrange
+import os
+import sys
+
+def resource_path(relative_path):
+    """ Get absolute path to resource. Works for dev and PyInstaller. """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 class ObjectHandler:
@@ -8,15 +18,15 @@ class ObjectHandler:
         self.game = game
         self.sprite_list = []
         self.npc_list = []
-        self.npc_sprite_path = 'resources/sprites/npc/'
-        self.static_sprite_path = 'resources/sprites/static_sprites/'
-        self.anim_sprite_path = 'resources/sprites/animated_sprites/'
+        self.npc_sprite_path = resource_path('resources/sprites/npc/')
+        self.static_sprite_path = resource_path('resources/sprites/static_sprites/')
+        self.anim_sprite_path = resource_path('resources/sprites/animated_sprites/')
         add_sprite = self.add_sprite
         add_npc = self.add_npc
         self.npc_positions = {}
 
         # spawn npc
-        self.enemies = 20  # npc count
+        self.enemies = 20
         self.npc_types = [SoldierNPC, CacoDemonNPC, CyberDemonNPC]
         self.weights = [70, 20, 10]
         self.restricted_area = {(i, j) for i in range(10) for j in range(10)}
@@ -32,37 +42,29 @@ class ObjectHandler:
         add_sprite(AnimatedSprite(game, pos=(7.5, 5.5)))
         add_sprite(AnimatedSprite(game, pos=(14.5, 1.5)))
         add_sprite(AnimatedSprite(game, pos=(14.5, 4.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(14.5, 5.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(14.5, 7.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(12.5, 7.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(9.5, 7.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(14.5, 12.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(9.5, 20.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(10.5, 20.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(3.5, 14.5)))
-        add_sprite(AnimatedSprite(game, path=self.anim_sprite_path + 'red_light/0.png', pos=(3.5, 18.5)))
+
+        red_light = os.path.join(self.anim_sprite_path, 'red_light/0.png')
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(14.5, 5.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(14.5, 7.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(12.5, 7.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(9.5, 7.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(14.5, 12.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(9.5, 20.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(10.5, 20.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(3.5, 14.5)))
+        add_sprite(AnimatedSprite(game, path=red_light, pos=(3.5, 18.5)))
         add_sprite(AnimatedSprite(game, pos=(14.5, 24.5)))
         add_sprite(AnimatedSprite(game, pos=(14.5, 30.5)))
         add_sprite(AnimatedSprite(game, pos=(1.5, 30.5)))
         add_sprite(AnimatedSprite(game, pos=(1.5, 24.5)))
 
-        # npc map
-        # add_npc(SoldierNPC(game, pos=(11.0, 19.0)))
-        # add_npc(SoldierNPC(game, pos=(11.5, 4.5)))
-        # add_npc(SoldierNPC(game, pos=(13.5, 6.5)))
-        # add_npc(SoldierNPC(game, pos=(2.0, 20.0)))
-        # add_npc(SoldierNPC(game, pos=(4.0, 29.0)))
-        # add_npc(CacoDemonNPC(game, pos=(5.5, 14.5)))
-        # add_npc(CacoDemonNPC(game, pos=(5.5, 16.5)))
-        # add_npc(CyberDemonNPC(game, pos=(14.5, 25.5)))
-
     def spawn_npc(self):
         for i in range(self.enemies):
-                npc = choices(self.npc_types, self.weights)[0]
+            npc = choices(self.npc_types, self.weights)[0]
+            pos = x, y = randrange(self.game.map.cols), randrange(self.game.map.rows)
+            while (pos in self.game.map.world_map) or (pos in self.restricted_area):
                 pos = x, y = randrange(self.game.map.cols), randrange(self.game.map.rows)
-                while (pos in self.game.map.world_map) or (pos in self.restricted_area):
-                    pos = x, y = randrange(self.game.map.cols), randrange(self.game.map.rows)
-                self.add_npc(npc(self.game, pos=(x + 0.5, y + 0.5)))
+            self.add_npc(npc(self.game, pos=(x + 0.5, y + 0.5)))
 
     def check_win(self):
         if not len(self.npc_positions):

@@ -1,5 +1,19 @@
+import sys
+import os
+
+if getattr(sys, 'frozen', False):
+    # Running in PyInstaller bundle
+    BASE_DIR = sys._MEIPASS
+else:
+    # Running in normal Python
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Then use BASE_DIR to load resources
+path_to_sprite = os.path.join(BASE_DIR, 'resources', 'sprites', 'npc', 'caco_demon', '0.png')
+
 import pygame as pg
 import sys
+import os
 from settings import *
 from map import *
 from player import *
@@ -10,6 +24,15 @@ from object_handler import *
 from weapon import *
 from sound import *
 from pathfinding import *
+
+def resource_path(relative_path):
+    """ Get absolute path to resource for PyInstaller compatibility """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class Game:
@@ -34,7 +57,9 @@ class Game:
         self.weapon = Weapon(self)
         self.sound = Sound(self)
         self.pathfinding = PathFinding(self)
-        pg.mixer.music.play(-1)
+
+        if self.sound.sound_enabled:
+            pg.mixer.music.play(-1)
 
     def update(self):
         self.player.update()
@@ -43,14 +68,11 @@ class Game:
         self.weapon.update()
         pg.display.flip()
         self.delta_time = self.clock.tick(FPS)
-        pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
+        pg.display.set_caption(f'{self.clock.get_fps():.1f}')
 
     def draw(self):
-        # self.screen.fill('black')
         self.object_renderer.draw()
         self.weapon.draw()
-        # self.map.draw()
-        # self.player.draw()
 
     def check_events(self):
         self.global_trigger = False

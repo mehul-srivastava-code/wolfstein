@@ -1,5 +1,17 @@
 import pygame as pg
 from settings import *
+import os
+import sys
+
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller bundle."""
+    try:
+        base_path = sys._MEIPASS  # PyInstaller temporary folder
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class ObjectRenderer:
@@ -51,7 +63,8 @@ class ObjectRenderer:
 
     @staticmethod
     def get_texture(path, res=(TEXTURE_SIZE, TEXTURE_SIZE)):
-        texture = pg.image.load(path).convert_alpha()
+        full_path = resource_path(path)
+        texture = pg.image.load(full_path).convert_alpha()
         return pg.transform.scale(texture, res)
 
     def load_wall_textures(self):

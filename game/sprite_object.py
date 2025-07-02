@@ -1,3 +1,12 @@
+import sys
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS  # PyInstaller sets this
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 import pygame as pg
 from settings import *
 import os
